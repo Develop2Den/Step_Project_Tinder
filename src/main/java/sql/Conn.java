@@ -10,9 +10,9 @@ public class Conn {
     @SneakyThrows
     static Connection mkConn() {
         return DriverManager.getConnection(
-                "jdbc:postgresql://localhost:5432/tinderDB",
-                "postgres",
-                "12345"
+                "jdbc:postgresql://localhost:5432/DB_tinder",
+                "user_tinder",
+                "ut12345"
         );
     }
 

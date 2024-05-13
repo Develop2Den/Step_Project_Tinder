@@ -15,19 +15,19 @@ docker-compose up
 
 ### jump into container (pg_2)
 ```shell
-docker exec -ti step_project bash
+docker exec -ti step_2 bash
 ```
 
 ### inside container:
 
 #### become postgres user
 ```shell
-su postgres
+su user_tinder
 ```
 
 #### create database (fs8)
 ```shell
-createdb tinderDB
+createdb DB_tinder
 ```
 
 ### exit from user postgres

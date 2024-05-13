@@ -1,0 +1,20 @@
+body {
+    width: 100%;
+    text-align: center;
+    color: green;
+}
+div {
+    margin: 0 auto;
+    width: 300px;
+    display: flex;
+    flex-direction: column
+}
+h3 {
+    font-weight: bold;
+    color: red;
+    font-size: large;
+}
+button {
+    margin-top: 10px;
+    color: red;
+}
