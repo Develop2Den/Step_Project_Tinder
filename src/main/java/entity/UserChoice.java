@@ -1,12 +1,12 @@
 package src.main.java.entity;
 
-public class UserChoices {
+public class UserChoice {
 
     private int recordId;
     private int userId;
     private int userLikedId;
 
-    public UserChoices(int userId, int userLikedId) {
+    public UserChoice(int userId, int userLikedId) {
         this.userId = userId;
         this.userLikedId = userLikedId;
     }

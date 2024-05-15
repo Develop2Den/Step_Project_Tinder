@@ -1,7 +1,7 @@
 package src.main.java.dao.daointerfaceimpl;
 
 import src.main.java.dao.daointerface.LikedDAO;
-import src.main.java.entity.UserChoices;
+import src.main.java.entity.UserChoice;
 import src.main.java.sql.Conn;
 
 import java.sql.Connection;
@@ -13,14 +13,14 @@ import java.util.List;
 
 public class CollectionLikedDAO implements LikedDAO {
 
-    private List<UserChoices> likedUsers;
+    private List<UserChoice> likedUsers;
 
     public CollectionLikedDAO() {
         likedUsers = new ArrayList<>();
     }
 
     @Override
-    public List<UserChoices> getAllLikedUsers(int userID) {
+    public List<UserChoice> getAllLikedUsers(int userID) {
         try (Connection conn = Conn.mkConn()) {
             String sql = String.format("select user_id, liked_user from liked where user_id = %s", userID);
             PreparedStatement st = conn.prepareStatement(sql);
@@ -30,7 +30,7 @@ public class CollectionLikedDAO implements LikedDAO {
                     int user_id = rs.getInt("user_id");
                     int liked_user = rs.getInt("liked_user");
 
-                    likedUsers.add(new UserChoices(user_id, liked_user));
+                    likedUsers.add(new UserChoice(user_id, liked_user));
                 }
             }
         } catch (SQLException e) {

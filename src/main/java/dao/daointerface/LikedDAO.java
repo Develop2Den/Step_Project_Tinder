@@ -1,11 +1,11 @@
 package src.main.java.dao.daointerface;
 
-import src.main.java.entity.UserChoices;
+import src.main.java.entity.UserChoice;
 
 import java.util.List;
 
 public interface LikedDAO {
 
-    List<UserChoices> getAllLikedUsers(int userID);
+    List<UserChoice> getAllLikedUsers(int userID);
     void likeUser(Object activeUser, Object selectedUser);
 }
