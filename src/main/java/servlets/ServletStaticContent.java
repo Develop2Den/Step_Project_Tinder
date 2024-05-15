@@ -13,11 +13,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class ContentServlet extends HttpServlet {
+public class ServletStaticContent extends HttpServlet {
 
     private final String prefix;
 
-    public ContentServlet(String root) {
+    public ServletStaticContent(String root) {
         this.prefix = ResourcesOps.dirUnsafe(root);
     }
 
@@ -26,6 +26,9 @@ public class ContentServlet extends HttpServlet {
         String fileName = req.getPathInfo();
         String fullName = prefix + fileName;
 
+        System.out.println(fileName);
+        System.out.println(fullName);
+
         if (!new File(fullName).exists()) {
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
         } else try (ServletOutputStream os = resp.getOutputStream()) {
@@ -33,5 +36,4 @@ public class ContentServlet extends HttpServlet {
             Files.copy(path, os);
         }
     }
-
 }
