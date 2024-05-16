@@ -8,7 +8,7 @@ import java.sql.DriverManager;
 public class Conn {
 
     @SneakyThrows
-    static Connection mkConn() {
+    public static Connection mkConn() {
         return DriverManager.getConnection(
                 "jdbc:postgresql://localhost:5432/DB_tinder",
                 "user_tinder",

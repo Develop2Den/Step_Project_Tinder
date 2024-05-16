@@ -1,4 +1,7 @@
-package sql;
+package DAO.DAOinterfaceImpl;
+
+import DAO.DAOinterface.MessageDAO;
+import sql.Conn;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -6,9 +9,23 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class SqlSelect {
+public class CollectionMessageDAO implements MessageDAO {
+    @Override
+    public void setNewRow() throws SQLException {
+        String sql = "insert into messages (id, text, inc_msg, out_msg) values (?, ?, ?, ?)";
 
-    public static void main(String[] args) throws SQLException {
+        try (Connection conn = Conn.mkConn()) {
+            PreparedStatement st = conn.prepareStatement(sql);
+            st.setInt(1, 2);
+            st.setString(2, "Фото супер!");
+            st.setString(3, "user2");
+            st.setString(4, "user1");
+            st.executeUpdate();
+        }
+    }
+
+    @Override
+    public void displayTable() throws SQLException {
         record Massages(String text, String inc_msg, String out_msg) { }
         ArrayList<Massages> data = new ArrayList<>();
 
@@ -29,5 +46,4 @@ public class SqlSelect {
 
         data.forEach(System.out::println);
     }
-
 }

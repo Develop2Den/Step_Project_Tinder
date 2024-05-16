@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServlet;
 public class App 
 {
     public static void main(String[] args) throws Exception {
-        Server server = new Server(5432);
+        Server server = new Server(8080);
         ServletContextHandler handler = new ServletContextHandler();
 
         handler.addServlet(TestServlet.class,"/users");

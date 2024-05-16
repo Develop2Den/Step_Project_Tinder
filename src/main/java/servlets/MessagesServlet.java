@@ -1,14 +1,21 @@
 package servlets;
 
+import DAO.DAOinterface.MessageDAO;
+import DAO.DAOinterfaceImpl.CollectionMessageDAO;
+import services.MessageService;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class MessagesServlet extends HttpServlet {
+    MessageDAO messageDAO = new CollectionMessageDAO();
+    MessageService messageService = new MessageService(messageDAO);
+
 //    private Map<String, Integer> choicesCount = new HashMap<>();
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -26,6 +33,11 @@ public class MessagesServlet extends HttpServlet {
         ) {
             br.lines()
                     .forEach(w::write);
+            try {
+                messageService.displayTable();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         }
 
     }
