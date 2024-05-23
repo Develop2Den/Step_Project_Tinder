@@ -2,28 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <title>User Profiles</title>
     <link rel="stylesheet" href="../static/styles.css">
-    <title>TestStep_2</title>
 </head>
 <body>
+<h1>User Profiles</h1>
 <div>
+    <img src="{photoUrl}" alt="Profile Photo">
     <h3>${name}</h3>
-    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgGHzVPDAml3HfSfTKBGlZ5IS5w47W9Xpy_-9psTOupNXB2lt6k-SoK-MmarZifFVZUG4&usqp=CAU" alt="img">
-    <button type="button" onclick="sendPost('yes')">YES</button>
-    <button type="button" onclick="sendPost('no')">NO</button>
+    <form method="post">
+        <button type="submit" name="choice" value="Yes">Like</button>
+        <button type="submit" name="choice" value="No">Dislike</button>
+    </form>
 </div>
-<script>
-    function sendPost(choice) {
-        let post = new XMLHttpRequest();
-        post.open("POST", "/users", true);
-        post.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-        post.onreadystatechange = function () {
-            if (post.status === 200) {
-                console.log("POST request sent successfully");
-            }
-        };
-        post.send("choice=" + choice);
-    }
-</script>
 </body>
 </html>
