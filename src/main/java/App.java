@@ -1,20 +1,15 @@
-import DAO.DAOinterface.MessageDAO;
-import DAO.DAOinterfaceImpl.CollectionMessageDAO;
+import DAO.DAOinterfaceImpl.UserDAOImpl;
 import freemarker.template.Configuration;
 import freemarker.template.TemplateExceptionHandler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import services.MessagesService;
-import servlets.ContentServlet;
-import servlets.TestServlet;
-import servlets.MessagesServlet;
+import servlets.*;
 
-import javax.servlet.http.HttpServlet;
+public class App {
 
-public class App 
-{
     public static void main(String[] args) throws Exception {
+
         Server server = new Server(8080);
 
         Configuration cfg = new Configuration(Configuration.VERSION_2_3_30);
@@ -27,14 +22,15 @@ public class App
         ServletContextHandler handler = new ServletContextHandler(ServletContextHandler.SESSIONS);
         handler.setContextPath("/");
 
-        MessageDAO messageDAO = new CollectionMessageDAO();
-        MessagesService messagesService = new MessagesService(messageDAO);
+        UserDAOImpl userDAO = new UserDAOImpl();
 
-        handler.addServlet(TestServlet.class,"/users");
-        handler.addServlet(new ServletHolder(new MessagesServlet(messagesService,cfg)), "/messages/*");
+        handler.addServlet(new ServletHolder(new LoginServlet(userDAO, cfg)), "/login");
+        handler.addServlet(new ServletHolder(new UserServlet(userDAO, cfg)), "/users");
+        handler.addServlet(new ServletHolder(new LogoutServlet()), "/logout");
+        handler.addServlet(new ServletHolder(new LikedProfilesServlet(userDAO, cfg)), "/liked");
+        handler.addServlet(new ServletHolder(new MessagesServlet(userDAO, cfg)), "/messages/*");
 
-        HttpServlet scc = new ContentServlet("static");
-        handler.addServlet(new ServletHolder(scc), "/static/*");
+        handler.addServlet(new ServletHolder(new ContentServlet("static")), "/static/*");
 
         server.setHandler(handler);
         server.start();
