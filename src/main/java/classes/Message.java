@@ -68,4 +68,15 @@ public class Message {
         this.senderUsername = senderUsername;
     }
 
+    public String toString() {
+        return "Message{" +
+                "id=" + id +
+                ", senderId=" + senderId +
+                ", receiverId=" + receiverId +
+                ", content='" + content + '\'' +
+                ", timestamp=" + timestamp +
+                ", senderUsername='" + senderUsername + '\'' +
+                '}';
+    }
+
 }
