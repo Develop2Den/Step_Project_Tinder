@@ -1,11 +1,11 @@
 package servlets;
 
+import DAO.DAOinterfaceImpl.UserDAOImpl;
 import classes.Message;
-import classes.UserProfile;
+import classes.User;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
-import services.MessagesService;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -21,36 +21,26 @@ import java.util.Map;
 
 public class MessagesServlet extends HttpServlet {
 
-    private MessagesService messagesService;
+    private UserDAOImpl userDAO;
     private Configuration cfg;
 
-    public MessagesServlet(MessagesService messagesService, Configuration cfg) {
-        this.messagesService = messagesService;
+    public MessagesServlet(UserDAOImpl userDAO, Configuration cfg) {
+        this.userDAO = userDAO;
         this.cfg = cfg;
-    }
-    private int getId(HttpSession session) throws ServletException {
-        int currentUserId = 0;
-        try {
-            currentUserId = messagesService.getCurrentUserIdFromSession(session);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        if (currentUserId == -1) {
-            throw new ServletException("User not found");
-        }
-        return currentUserId;
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession session = req.getSession(false);
-//        if (session == null || session.getAttribute("username") == null) {
-//            resp.sendRedirect(req.getContextPath() + "/login");
-//            return;
-//        }
+        if (session == null || session.getAttribute("username") == null) {
+            resp.sendRedirect(req.getContextPath() + "/login");
+            return;
+        }
 
-        int currentUserId = getId(session);
-
+        int currentUserId = userDAO.getCurrentUserIdFromSession(session);
+        if (currentUserId == -1) {
+            throw new ServletException("User not found");
+        }
 
         String userIdPath = req.getPathInfo();
         if (userIdPath == null || userIdPath.length() <= 1) {
@@ -67,23 +57,23 @@ public class MessagesServlet extends HttpServlet {
         }
 
         List<Message> messages;
-        UserProfile userProfile;
-        String name = session.getAttribute("username").toString();
+        User user;
         try {
-            messages = messagesService.getMessages(currentUserId, userId);
-            userProfile = messagesService.getById(userId);
+            messages = userDAO.getMessages(currentUserId, userId);
+            user = userDAO.getById(userId);
         } catch (SQLException e) {
             throw new ServletException(e);
         }
 
+        // Генерация HTML-страницы
         Map<String, Object> model = new HashMap<>();
         model.put("currentUserId", currentUserId);
         model.put("userId1", currentUserId);
         model.put("userId2", userId);
         model.put("messages", messages);
-        model.put("userProfile", userProfile);
+        model.put("userProfile", user);
 
-        Template template = cfg.getTemplate("chat.html");
+        Template template = cfg.getTemplate("chat.ftl");
 
         StringWriter writer = new StringWriter();
         try {
@@ -99,12 +89,15 @@ public class MessagesServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession session = req.getSession(false);
-//        if (session == null || session.getAttribute("username") == null) {
-//            resp.sendRedirect(req.getContextPath() + "/login");
-//            return;
-//        }
+        if (session == null || session.getAttribute("username") == null) {
+            resp.sendRedirect(req.getContextPath() + "/login");
+            return;
+        }
 
-        int currentUserId = getId(session);
+        int currentUserId = userDAO.getCurrentUserIdFromSession(session);
+        if (currentUserId == -1) {
+            throw new ServletException("User not found");
+        }
 
         String userIdPath = req.getPathInfo();
         if (userIdPath == null || userIdPath.length() <= 1) {
@@ -122,12 +115,11 @@ public class MessagesServlet extends HttpServlet {
 
         String content = req.getParameter("content");
         if (content == null || content.isEmpty()) {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Message content is required");
-            return;
+            content = "Empty message!";
         }
 
         try {
-            messagesService.saveMsg(currentUserId, userId, content);
+            userDAO.saveMessage(currentUserId, userId, content);
             resp.sendRedirect(req.getRequestURI());
         } catch (SQLException e) {
             throw new ServletException(e);
