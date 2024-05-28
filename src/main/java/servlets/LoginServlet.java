@@ -1,9 +1,6 @@
 package servlets;
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 70f05fe2cb6f9502a01e94e9429cffd043315f07
 import DAO.DAOinterfaceImpl.UserDAOImpl;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
