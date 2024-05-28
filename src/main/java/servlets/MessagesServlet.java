@@ -1,6 +1,9 @@
 package servlets;
 
+<<<<<<< HEAD
 import DAO.DAOinterfaceImpl.MessageDAOImpl;
+=======
+>>>>>>> 70f05fe2cb6f9502a01e94e9429cffd043315f07
 import DAO.DAOinterfaceImpl.UserDAOImpl;
 import classes.Message;
 import classes.User;
@@ -22,12 +25,19 @@ import java.util.Map;
 
 public class MessagesServlet extends HttpServlet {
 
+<<<<<<< HEAD
     private MessageDAOImpl messageDAO;
     private UserDAOImpl userDAO;
     private Configuration cfg;
 
     public MessagesServlet(MessageDAOImpl messageDAO, UserDAOImpl userDAO, Configuration cfg) {
         this.messageDAO = messageDAO;
+=======
+    private UserDAOImpl userDAO;
+    private Configuration cfg;
+
+    public MessagesServlet(UserDAOImpl userDAO, Configuration cfg) {
+>>>>>>> 70f05fe2cb6f9502a01e94e9429cffd043315f07
         this.userDAO = userDAO;
         this.cfg = cfg;
     }
@@ -62,7 +72,11 @@ public class MessagesServlet extends HttpServlet {
         List<Message> messages;
         User user;
         try {
+<<<<<<< HEAD
             messages = messageDAO.getMessagesBetweenUsers(currentUserId, userId);
+=======
+            messages = userDAO.getMessages(currentUserId, userId);
+>>>>>>> 70f05fe2cb6f9502a01e94e9429cffd043315f07
             user = userDAO.getById(userId);
         } catch (SQLException e) {
             throw new ServletException(e);
@@ -120,7 +134,11 @@ public class MessagesServlet extends HttpServlet {
         }
 
         try {
+<<<<<<< HEAD
             messageDAO.saveMessage(currentUserId, userId, content);
+=======
+            userDAO.saveMessage(currentUserId, userId, content);
+>>>>>>> 70f05fe2cb6f9502a01e94e9429cffd043315f07
             resp.sendRedirect(req.getRequestURI());
         } catch (SQLException e) {
             throw new ServletException(e);
