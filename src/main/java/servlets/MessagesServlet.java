@@ -1,5 +1,6 @@
 package servlets;
 
+import DAO.DAOinterfaceImpl.MessageDAOImpl;
 import DAO.DAOinterfaceImpl.UserDAOImpl;
 import classes.Message;
 import classes.User;
@@ -21,10 +22,12 @@ import java.util.Map;
 
 public class MessagesServlet extends HttpServlet {
 
+    private MessageDAOImpl messageDAO;
     private UserDAOImpl userDAO;
     private Configuration cfg;
 
-    public MessagesServlet(UserDAOImpl userDAO, Configuration cfg) {
+    public MessagesServlet(MessageDAOImpl messageDAO, UserDAOImpl userDAO, Configuration cfg) {
+        this.messageDAO = messageDAO;
         this.userDAO = userDAO;
         this.cfg = cfg;
     }
@@ -59,7 +62,7 @@ public class MessagesServlet extends HttpServlet {
         List<Message> messages;
         User user;
         try {
-            messages = userDAO.getMessages(currentUserId, userId);
+            messages = messageDAO.getMessagesBetweenUsers(currentUserId, userId);
             user = userDAO.getById(userId);
         } catch (SQLException e) {
             throw new ServletException(e);
@@ -68,8 +71,6 @@ public class MessagesServlet extends HttpServlet {
         // Генерация HTML-страницы
         Map<String, Object> model = new HashMap<>();
         model.put("currentUserId", currentUserId);
-        model.put("userId1", currentUserId);
-        model.put("userId2", userId);
         model.put("messages", messages);
         model.put("userProfile", user);
 
@@ -119,7 +120,7 @@ public class MessagesServlet extends HttpServlet {
         }
 
         try {
-            userDAO.saveMessage(currentUserId, userId, content);
+            messageDAO.saveMessage(currentUserId, userId, content);
             resp.sendRedirect(req.getRequestURI());
         } catch (SQLException e) {
             throw new ServletException(e);

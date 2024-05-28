@@ -1,5 +1,6 @@
 package servlets;
 
+import DAO.DAOinterfaceImpl.LikedDAOImpl;
 import DAO.DAOinterfaceImpl.UserDAOImpl;
 import classes.User;
 import freemarker.template.Configuration;
@@ -18,16 +19,27 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class UserServlet extends HttpServlet {
 
     private UserDAOImpl userDAO;
+    private LikedDAOImpl likedDAO;
     private Configuration cfg;
 
-    public UserServlet(UserDAOImpl userDAO, Configuration cfg) {
+    public UserServlet(UserDAOImpl userDAO, LikedDAOImpl likedDAO, Configuration cfg) {
         this.userDAO = userDAO;
+        this.likedDAO = likedDAO;
         this.cfg = cfg;
+    }
+
+    private List<User> getFilteredProfiles(Integer currentUserId, List<User> likedProfiles, List<User> dislikedProfiles, List<User> allProfiles) {
+        return allProfiles.stream()
+                .filter(user -> likedProfiles.stream().noneMatch(liked -> liked.getId() == user.getId()) &&
+                        dislikedProfiles.stream().noneMatch(disliked -> disliked.getId() == user.getId()) &&
+                        user.getId() != currentUserId)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -43,10 +55,12 @@ public class UserServlet extends HttpServlet {
         Integer currentUserId = (Integer) session.getAttribute("userId");
 
         List<User> likedProfiles;
+        List<User> dislikedProfiles;
         try {
-            likedProfiles = userDAO.getLikedProfiles(currentUserId);
+            likedProfiles = likedDAO.getLikedProfiles(currentUserId);
+            dislikedProfiles = likedDAO.getDislikedProfiles(currentUserId);
         } catch (SQLException e) {
-            throw new ServletException("Unable to retrieve liked profiles", e);
+            throw new ServletException("Unable to retrieve liked or disliked profiles", e);
         }
 
         List<User> allProfiles;
@@ -56,22 +70,14 @@ public class UserServlet extends HttpServlet {
             throw new ServletException("Unable to retrieve profiles", e);
         }
 
-        // Фильтрация профилей: исключаем лайкнутых пользователей и самого себя
-        List<User> filteredProfiles = allProfiles.stream()
-                .filter(user -> likedProfiles.stream().noneMatch(liked -> liked.getId() == user.getId()) && user.getId() != currentUserId)
-                .collect(Collectors.toList());
+        List<User> filteredProfiles = getFilteredProfiles(currentUserId, likedProfiles, dislikedProfiles, allProfiles);
 
-        Integer profileIndex = (Integer) session.getAttribute("profileIndex");
-        if (profileIndex == null) {
-            profileIndex = 0;
-        }
-
-        if (profileIndex >= filteredProfiles.size()) {
+        if (filteredProfiles.isEmpty()) {
             resp.sendRedirect("/liked");
             return;
         }
 
-        User profile = filteredProfiles.get(profileIndex);
+        User profile = filteredProfiles.get(0);
 
         Map<String, Object> data = new HashMap<>();
         data.put("user", profile);
@@ -95,10 +101,12 @@ public class UserServlet extends HttpServlet {
         Integer currentUserId = (Integer) session.getAttribute("userId");
 
         List<User> likedProfiles;
+        List<User> dislikedProfiles;
         try {
-            likedProfiles = userDAO.getLikedProfiles(currentUserId);
+            likedProfiles = likedDAO.getLikedProfiles(currentUserId);
+            dislikedProfiles = likedDAO.getDislikedProfiles(currentUserId);
         } catch (SQLException e) {
-            throw new ServletException("Unable to retrieve liked profiles", e);
+            throw new ServletException("Unable to retrieve liked or disliked profiles", e);
         }
 
         List<User> allProfiles;
@@ -108,36 +116,36 @@ public class UserServlet extends HttpServlet {
             throw new ServletException("Unable to retrieve profiles", e);
         }
 
-        // Фильтрация профилей: исключаем лайкнутых пользователей и самого себя
-        List<User> filteredProfiles = allProfiles.stream()
-                .filter(user -> likedProfiles.stream().noneMatch(liked -> liked.getId() == user.getId()) && user.getId() != currentUserId)
-                .collect(Collectors.toList());
+        List<User> filteredProfiles = getFilteredProfiles(currentUserId, likedProfiles, dislikedProfiles, allProfiles);
 
-        Integer profileIndex = (Integer) session.getAttribute("profileIndex");
-        if (profileIndex == null) {
-            profileIndex = 0;
-        }
-
-        if (profileIndex >= filteredProfiles.size()) {
+        if (filteredProfiles.isEmpty()) {
             resp.sendRedirect("/liked");
             return;
         }
 
-        User currentProfile = filteredProfiles.get(profileIndex);
+        User currentProfile = filteredProfiles.get(0);
 
         String choice = req.getParameter("action");
-        if ("like".equalsIgnoreCase(choice)) {
-            try {
-                userDAO.likeProfile(currentUserId, currentProfile.getId());
-            } catch (SQLException e) {
-                throw new ServletException("Unable to like profile", e);
+        try {
+            if ("like".equalsIgnoreCase(choice)) {
+                likedDAO.likeProfile(currentUserId, currentProfile.getId());
+            } else if ("dislike".equalsIgnoreCase(choice)) {
+                likedDAO.dislikeProfile(currentUserId, currentProfile.getId());
             }
+        } catch (SQLException e) {
+            throw new ServletException("Unable to update profile", e);
         }
 
-        profileIndex++;
-        session.setAttribute("profileIndex", profileIndex);
+        try {
+            likedProfiles = likedDAO.getLikedProfiles(currentUserId);
+            dislikedProfiles = likedDAO.getDislikedProfiles(currentUserId);
+        } catch (SQLException e) {
+            throw new ServletException("Unable to retrieve liked or disliked profiles", e);
+        }
 
-        if (profileIndex >= filteredProfiles.size()) {
+        filteredProfiles = getFilteredProfiles(currentUserId, likedProfiles, dislikedProfiles, allProfiles);
+
+        if (filteredProfiles.isEmpty()) {
             resp.sendRedirect("/liked");
         } else {
             resp.sendRedirect("/users");

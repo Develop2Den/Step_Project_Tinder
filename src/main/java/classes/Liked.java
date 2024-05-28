@@ -7,12 +7,14 @@ public class Liked {
     private int id;
     private int userId;
     private int likedUserId;
+    private String type;
     private Timestamp timestamp;
 
-    public Liked(int id, int userId, int likedUserId, Timestamp timestamp) {
+    public Liked(int id, int userId, int likedUserId, String type, Timestamp timestamp) {
         this.id = id;
         this.userId = userId;
         this.likedUserId = likedUserId;
+        this.type = type;
         this.timestamp = timestamp;
     }
 
@@ -28,7 +30,11 @@ public class Liked {
         return likedUserId;
     }
 
-    public Timestamp getCreated_at() {
+    public String getType() {
+        return type;
+    }
+
+    public Timestamp getTimestamp() {
         return timestamp;
     }
 
@@ -37,12 +43,16 @@ public class Liked {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Liked liked = (Liked) o;
-        return id == liked.id && userId == liked.userId && likedUserId == liked.likedUserId && Objects.equals(timestamp, liked.timestamp);
+        return id == liked.id &&
+                userId == liked.userId &&
+                likedUserId == liked.likedUserId &&
+                Objects.equals(type, liked.type) &&
+                Objects.equals(timestamp, liked.timestamp);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, userId, likedUserId, timestamp);
+        return Objects.hash(id, userId, likedUserId, type, timestamp);
     }
 
     @Override
@@ -51,6 +61,7 @@ public class Liked {
                 "id=" + id +
                 ", userId=" + userId +
                 ", likedUserId=" + likedUserId +
+                ", type='" + type + '\'' +
                 ", timestamp=" + timestamp +
                 '}';
     }
