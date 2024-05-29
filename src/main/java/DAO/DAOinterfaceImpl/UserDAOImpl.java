@@ -2,9 +2,6 @@ package DAO.DAOinterfaceImpl;
 
 import DAO.DAOinterface.DAO;
 import classes.User;
-import classes.Liked;
-import classes.Message;
-
 import utils.ConnectionManager;
 
 import javax.servlet.http.HttpSession;
@@ -82,67 +79,7 @@ public class UserDAOImpl implements DAO<User> {
         }
     }
 
-    public void likeProfile(int userId1, int userId2) throws SQLException {
-        String checkSql = "SELECT COUNT(*) FROM likes WHERE user_id1 = ? AND user_id2 = ?";
-        String insertSql = "INSERT INTO likes (user_id1, user_id2, timestamp) VALUES (?, ?, ?)";
-
-        try (Connection conn = ConnectionManager.open();
-             PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
-            checkStmt.setInt(1, userId1);
-            checkStmt.setInt(2, userId2);
-            try (ResultSet rs = checkStmt.executeQuery()) {
-                if (rs.next() && rs.getInt(1) == 0) {
-                    try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
-                        insertStmt.setInt(1, userId1);
-                        insertStmt.setInt(2, userId2);
-                        insertStmt.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
-                        insertStmt.executeUpdate();
-                    }
-                }
-            }
-        }
-    }
-
-    public List<User> getLikedProfiles(int userId) throws SQLException {
-        List<User> likedProfiles = new ArrayList<>();
-        String sql = "SELECT u.id, u.name, u.photo_url " +
-                "FROM users u " +
-                "JOIN likes l ON u.id = l.user_id2 " +
-                "WHERE l.user_id1 = ?";
-
-        try (Connection conn = ConnectionManager.open();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, userId);
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    int id = rs.getInt("id");
-                    String name = rs.getString("name");
-                    String photoUrl = rs.getString("photo_url");
-                    likedProfiles.add(new User(id, name, photoUrl));
-                }
-            }
-        }
-        return likedProfiles;
-    }
-
-    public List<Liked> getAllLikes() throws SQLException {
-        List<Liked> likes = new ArrayList<>();
-        String sql = "SELECT id, user_id1, user_id2, timestamp FROM likes";
-        try (Connection conn = ConnectionManager.open();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                int id = rs.getInt("id");
-                int userId1 = rs.getInt("user_id1");
-                int userId2 = rs.getInt("user_id2");
-                Timestamp timestamp = rs.getTimestamp("created_at");
-                likes.add(new Liked(id, userId1, userId2, timestamp));
-            }
-        }
-        return likes;
-    }
-
-    public static int getUserIdByUsername(String username) throws SQLException {
+    public int getUserIdByUsername(String username) throws SQLException {
         int userId = -1;
         try (Connection connection = ConnectionManager.open()) {
             String sql = "SELECT id FROM users WHERE name = ?";
@@ -156,46 +93,6 @@ public class UserDAOImpl implements DAO<User> {
             }
         }
         return userId;
-    }
-
-    public List<Message> getMessages(int userId1, int userId2) throws SQLException {
-        List<Message> messages = new ArrayList<>();
-        String sql = "SELECT m.id, m.sender_id, m.receiver_id, m.content, m.timestamp, u.name AS sender_username " +
-                "FROM messages m " +
-                "JOIN users u ON m.sender_id = u.id " +
-                "WHERE (m.sender_id = ? AND m.receiver_id = ?) OR (m.sender_id = ? AND m.receiver_id = ?) " +
-                "ORDER BY m.timestamp";
-
-        try (Connection conn = ConnectionManager.open();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, userId1);
-            stmt.setInt(2, userId2);
-            stmt.setInt(3, userId2);
-            stmt.setInt(4, userId1);
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    int id = rs.getInt("id");
-                    int senderId = rs.getInt("sender_id");
-                    int receiverId = rs.getInt("receiver_id");
-                    String content = rs.getString("content");
-                    Timestamp timestamp = rs.getTimestamp("timestamp");
-                    String senderUsername = rs.getString("sender_username");
-                    messages.add(new Message(id, senderId, receiverId, content, timestamp, senderUsername));
-                }
-            }
-        }
-        return messages;
-    }
-
-    public void saveMessage(int senderId, int receiverId, String content) throws SQLException {
-        String sql = "INSERT INTO messages (sender_id, receiver_id, content) VALUES (?, ?, ?)";
-        try (Connection conn = ConnectionManager.open();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, senderId);
-            stmt.setInt(2, receiverId);
-            stmt.setString(3, content);
-            stmt.executeUpdate();
-        }
     }
 
     public int getCurrentUserIdFromSession(HttpSession session) {

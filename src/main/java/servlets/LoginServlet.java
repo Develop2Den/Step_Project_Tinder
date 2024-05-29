@@ -1,5 +1,6 @@
 package servlets;
 
+
 import DAO.DAOinterfaceImpl.UserDAOImpl;
 import freemarker.template.Configuration;
 import freemarker.template.Template;

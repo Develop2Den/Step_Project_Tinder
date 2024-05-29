@@ -1,5 +1,6 @@
 package servlets;
 
+import DAO.DAOinterfaceImpl.MessageDAOImpl;
 import DAO.DAOinterfaceImpl.UserDAOImpl;
 import classes.Message;
 import classes.User;
@@ -21,10 +22,12 @@ import java.util.Map;
 
 public class MessagesServlet extends HttpServlet {
 
+    private MessageDAOImpl messageDAO;
     private UserDAOImpl userDAO;
     private Configuration cfg;
 
-    public MessagesServlet(UserDAOImpl userDAO, Configuration cfg) {
+    public MessagesServlet(MessageDAOImpl messageDAO, UserDAOImpl userDAO, Configuration cfg) {
+        this.messageDAO = messageDAO;
         this.userDAO = userDAO;
         this.cfg = cfg;
     }
@@ -47,7 +50,6 @@ public class MessagesServlet extends HttpServlet {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "User ID is required");
             return;
         }
-
         int userId;
         try {
             userId = Integer.parseInt(userIdPath.substring(1)); // Получаем ID пользователя из URL
@@ -59,17 +61,14 @@ public class MessagesServlet extends HttpServlet {
         List<Message> messages;
         User user;
         try {
-            messages = userDAO.getMessages(currentUserId, userId);
+            messages = messageDAO.getMessagesBetweenUsers(currentUserId, userId);
             user = userDAO.getById(userId);
         } catch (SQLException e) {
             throw new ServletException(e);
         }
 
-        // Генерация HTML-страницы
         Map<String, Object> model = new HashMap<>();
         model.put("currentUserId", currentUserId);
-        model.put("userId1", currentUserId);
-        model.put("userId2", userId);
         model.put("messages", messages);
         model.put("userProfile", user);
 
@@ -81,11 +80,9 @@ public class MessagesServlet extends HttpServlet {
         } catch (TemplateException e) {
             throw new ServletException(e);
         }
-
         resp.setContentType("text/html");
         resp.getWriter().write(writer.toString());
     }
-
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession session = req.getSession(false);
@@ -104,10 +101,9 @@ public class MessagesServlet extends HttpServlet {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "User ID is required");
             return;
         }
-
         int userId;
         try {
-            userId = Integer.parseInt(userIdPath.substring(1)); // Получаем ID пользователя из URL
+            userId = Integer.parseInt(userIdPath.substring(1));
         } catch (NumberFormatException e) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid user ID format");
             return;
@@ -119,7 +115,7 @@ public class MessagesServlet extends HttpServlet {
         }
 
         try {
-            userDAO.saveMessage(currentUserId, userId, content);
+            messageDAO.saveMessage(currentUserId, userId, content);
             resp.sendRedirect(req.getRequestURI());
         } catch (SQLException e) {
             throw new ServletException(e);
