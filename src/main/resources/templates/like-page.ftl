@@ -22,6 +22,7 @@
             <form method="post" action="/logout" style="display:inline;">
                 <button type="submit" class="btn btn-secondary">Logout</button>
             </form>
+            <a href="/liked" class="btn btn-primary">View Liked Profiles</a>
         </div>
     </div>
     <div class="col-4 offset-4">

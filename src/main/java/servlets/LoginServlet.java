@@ -1,6 +1,5 @@
 package servlets;
 
-
 import DAO.DAOinterfaceImpl.UserDAOImpl;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -45,18 +44,18 @@ public class LoginServlet extends HttpServlet {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
 
-        if (password.equals(HARDCODED_PASSWORD)) {
-            HttpSession session = request.getSession();
-            session.setAttribute("username", username);
-            try {
-                int userId = userDAO.getUserIdByUsername(username);
+        try {
+            int userId = userDAO.getUserIdByUsername(username);
+            if (userId != -1 && password.equals(HARDCODED_PASSWORD)) {
+                HttpSession session = request.getSession();
+                session.setAttribute("username", username);
                 session.setAttribute("userId", userId);
                 response.sendRedirect(request.getContextPath() + "/users");
-            } catch (SQLException e) {
-                throw new ServletException("Unable to retrieve user ID", e);
+            } else {
+                response.sendRedirect(request.getContextPath() + "/login?error=1");
             }
-        } else {
-            response.sendRedirect(request.getContextPath() + "/login?error=1");
+        } catch (SQLException e) {
+            throw new ServletException("Unable to validate user", e);
         }
     }
 }

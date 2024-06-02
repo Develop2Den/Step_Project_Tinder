@@ -9,7 +9,7 @@ public class Message {
     private int receiverId;
     private String content;
     private Timestamp timestamp;
-    private String senderUsername; // Новое поле
+    private String senderUsername;
 
     public Message(int id, int senderId, int receiverId, String content, Timestamp timestamp, String senderUsername) {
         this.id = id;

@@ -10,6 +10,9 @@
 <body>
 <div class="container">
     <div class="d-flex justify-content-between align-items-center my-4">
+        <div>
+            <a href="/liked" class="btn btn-primary">View Liked Profiles</a>
+        </div>
         <form action="/logout" method="post">
             <button class="btn btn-danger">Logout</button>
         </form>

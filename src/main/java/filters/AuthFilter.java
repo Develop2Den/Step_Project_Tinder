@@ -11,10 +11,10 @@ import java.io.IOException;
  * @author Alexander Isai on 25.05.2024.
  */
 public class AuthFilter implements Filter {
-
+    //TODO надо ли?
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        //TODO надо ли?
+
     }
 
     @Override
@@ -38,6 +38,5 @@ public class AuthFilter implements Filter {
 
     @Override
     public void destroy() {
-//TODO надо ли??
 }
 }
